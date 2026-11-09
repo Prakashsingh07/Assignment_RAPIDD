@@ -1,0 +1,213 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Work Time Summary & Analysis | RAPIDD Technologies Assignment</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger-bg: #fee2e2;
+            --danger-border: #ef4444;
+            --danger-text: #991b1b;
+            --success-bg: #dcfce7;
+            --success-text: #166534;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); color: var(--text-dark); line-height: 1.5; padding: 32px 16px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        header { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 2px solid var(--border); }
+        h1 { font-size: 28px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+        .subtitle { color: var(--text-muted); font-size: 15px; }
+        .meta-tag { display: inline-block; background: #e0e7ff; color: #3730a3; padding: 3px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; margin-left: 8px; }
+        
+        /* Metric Cards */
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
+        .metric-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .metric-label { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-value { font-size: 26px; font-weight: 700; color: var(--text-dark); margin-top: 6px; }
+        .metric-card.alert { border-color: #fca5a5; background: #fff5f5; }
+        .metric-card.alert .metric-value { color: var(--danger-text); }
+        
+        /* Legend / Note */
+        .legend-banner { display: flex; align-items: center; gap: 12px; background: #eff6ff; border-left: 4px solid var(--primary-light); padding: 12px 18px; border-radius: 6px; margin-bottom: 24px; font-size: 14px; color: #1e40af; }
+        .legend-pill { display: inline-block; width: 14px; height: 14px; border-radius: 3px; background-color: var(--danger-bg); border: 1px solid var(--danger-border); vertical-align: middle; margin-right: 4px; }
+        
+        /* Main Table */
+        .table-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.04); overflow: hidden; margin-bottom: 32px; }
+        .table-header-title { padding: 18px 24px; font-size: 18px; font-weight: 600; border-bottom: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        thead { background: #f1f5f9; }
+        th { padding: 14px 20px; font-size: 13px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+        td { padding: 14px 20px; font-size: 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tbody tr:hover { background-color: #f8fafc; }
+        
+        /* Row Highlight for < 100 hrs (Assignment Requirement) */
+        tr.underworked-row { background-color: #fee2e2 !important; border-left: 5px solid #ef4444; }
+        tr.underworked-row:hover { background-color: #fecaca !important; }
+        tr.underworked-row td { color: #991b1b; font-weight: 500; }
+        
+        /* Badges */
+        .badge { display: inline-block; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 9999px; }
+        .badge-danger { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+        .badge-success { background-color: var(--success-bg); color: var(--success-text); }
+        
+        /* Chart Section */
+        .chart-section { background: var(--card-bg); padding: 24px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.04); text-align: center; }
+        .chart-section h2 { font-size: 20px; color: var(--primary); margin-bottom: 8px; }
+        .chart-section p { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
+        .chart-wrapper { display: inline-block; max-width: 100%; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .chart-wrapper img { display: block; max-width: 100%; height: auto; }
+        
+        footer { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--border); text-align: center; color: var(--text-muted); font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Employee Work Time Summary</h1>
+            <p class="subtitle">RAPIDD Technologies Technical Assessment <span class="meta-tag">Generated: 09-Nov-2026 22:11</span></p>
+        </header>
+
+        <!-- Executive Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Total Employees</div>
+                <div class="metric-value">11</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Total Hours Worked</div>
+                <div class="metric-value">1621.97 hrs</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Average Hours / Employee</div>
+                <div class="metric-value">147.45 hrs</div>
+            </div>
+            <div class="metric-card alert">
+                <div class="metric-label">Worked &lt; 100 Hours</div>
+                <div class="metric-value">3 employee(s)</div>
+            </div>
+        </div>
+
+        <!-- Visual Guidance Banner -->
+        <div class="legend-banner">
+            <span class="legend-pill"></span>
+            <span><strong>Note on Table Highlighting:</strong> Rows colored in light red denote employees who worked <strong>less than 100 hours</strong>, as mandated by the assignment specification.</span>
+        </div>
+
+        <!-- Employee Table -->
+        <div class="table-card">
+            <div class="table-header-title">Employees Ranked by Total Time Worked</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">Rank</th>
+                        <th>Employee Name</th>
+                        <th style="text-align: right;">Total Time Worked (Hours)</th>
+                        <th style="text-align: right;">Percentage of Total Time</th>
+                        <th style="text-align: center;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="">
+                        <td><strong>#1</strong></td>
+                        <td><strong>Patrick Huthinson</strong></td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">212.13 hrs</td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">13.08%</td>
+                        <td style="text-align: center;"><span class="badge badge-success">Standard (&ge; 100 hrs)</span></td>
+                    </tr>
+                    <tr class="">
+                        <td><strong>#2</strong></td>
+                        <td><strong>Abhay Singh</strong></td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">207.65 hrs</td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">12.80%</td>
+                        <td style="text-align: center;"><span class="badge badge-success">Standard (&ge; 100 hrs)</span></td>
+                    </tr>
+                    <tr class="">
+                        <td><strong>#3</strong></td>
+                        <td><strong>Stewart Malachi</strong></td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">197.83 hrs</td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">12.20%</td>
+                        <td style="text-align: center;"><span class="badge badge-success">Standard (&ge; 100 hrs)</span></td>
+                    </tr>
+                    <tr class="">
+                        <td><strong>#4</strong></td>
+                        <td><strong>John Black</strong></td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">197.02 hrs</td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">12.15%</td>
+                        <td style="text-align: center;"><span class="badge badge-success">Standard (&ge; 100 hrs)</span></td>
+                    </tr>
+                    <tr class="">
+                        <td><strong>#5</strong></td>
+                        <td><strong>Mary Poppins</strong></td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">167.92 hrs</td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">10.35%</td>
+                        <td style="text-align: center;"><span class="badge badge-success">Standard (&ge; 100 hrs)</span></td>
+                    </tr>
+                    <tr class="">
+                        <td><strong>#6</strong></td>
+                        <td><strong>Tim Perkinson</strong></td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">163.17 hrs</td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">10.06%</td>
+                        <td style="text-align: center;"><span class="badge badge-success">Standard (&ge; 100 hrs)</span></td>
+                    </tr>
+                    <tr class="">
+                        <td><strong>#7</strong></td>
+                        <td><strong>Kavvay Verma</strong></td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">158.12 hrs</td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">9.75%</td>
+                        <td style="text-align: center;"><span class="badge badge-success">Standard (&ge; 100 hrs)</span></td>
+                    </tr>
+                    <tr class="">
+                        <td><strong>#8</strong></td>
+                        <td><strong>Rita Alley</strong></td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">112.18 hrs</td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">6.92%</td>
+                        <td style="text-align: center;"><span class="badge badge-success">Standard (&ge; 100 hrs)</span></td>
+                    </tr>
+                    <tr class="underworked-row">
+                        <td><strong>#9</strong></td>
+                        <td><strong>Raju Sunuwar</strong></td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">95.67 hrs</td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">5.90%</td>
+                        <td style="text-align: center;"><span class="badge badge-danger">Under 100 hrs</span></td>
+                    </tr>
+                    <tr class="underworked-row">
+                        <td><strong>#10</strong></td>
+                        <td><strong>Tamoy Smith</strong></td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">86.78 hrs</td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">5.35%</td>
+                        <td style="text-align: center;"><span class="badge badge-danger">Under 100 hrs</span></td>
+                    </tr>
+                    <tr class="underworked-row">
+                        <td><strong>#11</strong></td>
+                        <td><strong>Raja</strong></td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">23.50 hrs</td>
+                        <td style="text-align: right; font-variant-numeric: tabular-nums;">1.45%</td>
+                        <td style="text-align: center;"><span class="badge badge-danger">Under 100 hrs</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pie Chart Visualization Section -->
+        <div class="chart-section">
+            <h2>Task (b): Visualized Pie Chart</h2>
+            <p>Percentage of total work hours distributed across each employee</p>
+            <div class="chart-wrapper">
+                <img src="employee_time_piechart.png" alt="Employee Total Time Worked Pie Chart">
+            </div>
+        </div>
+
+        <footer>
+            <p>RAPIDD Technologies C# Technical Assignment Solution &bull; Developed by <strong>Prakash Singh</strong></p>
+        </footer>
+    </div>
+</body>
+</html>

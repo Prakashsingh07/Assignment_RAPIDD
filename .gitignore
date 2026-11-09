@@ -1,0 +1,19 @@
+# Visual Studio / .NET build artifacts
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+
+# Ensure output results and root single executable are tracked
+!employees_work_summary.html
+!index.html
+!employee_time_piechart.png
+!Prakash_Singh_C#_Assignment.exe
+!"Prakash_Singh_C# Assignment.exe"
+publish/
